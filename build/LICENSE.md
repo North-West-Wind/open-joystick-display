@@ -1,6 +1,6 @@
 This license applies to the 2 files in the /build directory ONLY
-/build/build.sh
-/build/Dockerfile
+    /build/build.sh
+    /build/Dockerfile
 
 Every other file in this repo is under the LICENSE.md in the root direcotry
 
