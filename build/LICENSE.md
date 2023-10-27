@@ -1,4 +1,4 @@
-This license applies to the 2 files in the /build directory ONLY
+This license applies to the 2 files in the `/build` directory ONLY
 
     /build/build.sh
     /build/Dockerfile
