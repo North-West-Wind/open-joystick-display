@@ -33,7 +33,8 @@ function createWindow () {
         toolbar:false,
         minimizable:false,
         fullscreen:false,
-        webPreferences:{nodeIntegration:true}
+        webPreferences:{nodeIntegration:true},
+        transparent: true
     };
 
     mainWindow = new BrowserWindow(windowConfig);
@@ -43,7 +44,7 @@ function createWindow () {
     
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => setTimeout(createWindow, 300));
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {

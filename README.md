@@ -1,6 +1,13 @@
 # Open Joystick Display
 **A powerful and easy to use streamer-ready overlay for your joystick or gamepad. Completely free and open source.**
 
+## This fork
+This fork isn't based on the original repository. Instead, it forks from [skrrp/open-joystick-display](https://github.com/skrrp/open-joystick-display) for they provided a handy script for building the program.
+
+This fork makes the Electron window transparent, so it looks way better on OBS Studio.
+
+The rest of the README is unchanged. This is the only part I (NorthWestWind) added.
+
 ### Project on life support
 The main author has discontinued the project and I am not an Electron developer. The links that KernelZechs had to the binaries to run this project are long-dead and the download site is now being domain-squatted by a scummy online pharmacy. As such, it is impossible to download pre-built binaries any more.
 
