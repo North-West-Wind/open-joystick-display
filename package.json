@@ -49,28 +49,29 @@
     }
   },
   "dependencies": {
+    "@electron/remote": "^2.1.0",
     "clone": "^2.1.2",
-    "electron-store": "^4.0.0",
+    "electron-store": "^8.1.0",
     "jquery": "^3.4.1",
     "json-socket": "^0.3.0",
     "lodash": "^4.17.14",
     "original-fs": "^1.0.0",
     "promise": "^8.0.3",
-    "sanitize-html": "^1.20.1",
-    "serialport": "^7.1.5",
+    "sanitize-html": "^2.11.0",
+    "serialport": "^12.0.0",
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
-    "electron": "4.0.3",
-    "electron-builder": "^20.38.5",
-    "electron-rebuild": "^1.8.4",
+    "electron": "27.0.4",
+    "electron-builder": "^24.6.4",
+    "electron-rebuild": "^3.2.9",
     "gulp": "^4.0.2",
     "gulp-clean-css": "^4.2.0",
     "gulp-connect": "^5.7.0",
-    "gulp-less": "^4.0.1",
+    "gulp-less": "^5.0.0",
     "gulp-minify": "^3.1.0",
-    "less": "^3.9.0",
-    "node-watch": "^0.6.2",
+    "less": "^4.2.0",
+    "node-watch": "^0.7.4",
     "stream-combiner2": "^1.1.1"
   }
 }

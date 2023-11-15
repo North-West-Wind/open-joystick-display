@@ -1,4 +1,4 @@
-const electron = require('electron');
+const { screen } = require("@electron/remote");
 const Store = require('electron-store');
 const Clone = require('clone');
 const OJD = window.OJD;
@@ -59,7 +59,7 @@ class Config {
 		const mappings = require(OJD.appendCwdPath('app/js/data/mappings.json'));
 
 		// Center on Screen
-		const screenSize = electron.screen.getPrimaryDisplay().size;
+		const screenSize = screen.getPrimaryDisplay().size;
 		config.bounds.x = parseInt((screenSize.width - config.bounds.width)/2, 10);
 		config.bounds.y = parseInt((screenSize.height - config.bounds.height)/2, 10);
 

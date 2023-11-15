@@ -1,6 +1,7 @@
 const FS = require('fs');
-const { remote, shell } = require('electron');
-const dialog = remote.require('electron').dialog;
+const { shell } = require('electron');
+const remote = require("@electron/remote");
+const dialog = remote.dialog;
 const OJD = window.OJD;
 const Clone = require('clone');
 
