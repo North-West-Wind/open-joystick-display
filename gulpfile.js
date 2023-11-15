@@ -13,15 +13,15 @@ function taskError(e) {
 
 function taskCSS(){
 	return combiner.obj([
-		gulp.src('./app/stylesheets/less/main.less'),
+		gulp.src('./public/stylesheets/less/main.less'),
 		less(),
 		cleanCSS(),
-		gulp.dest('./app/stylesheets')
+		gulp.dest('./public/stylesheets')
 	]).on('error', console.error.bind(console));
 }
 
 function taskWatch() {
-	watch('./app/stylesheets/less', { recursive: true }, function(evt, name) {
+	watch('./public/stylesheets/less', { recursive: true }, function(evt, name) {
 		console.log(`Updated: ${name}`);
 		taskCSS()
 	});
