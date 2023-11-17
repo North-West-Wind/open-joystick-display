@@ -1,5 +1,6 @@
 // This file handles the json-socket and client can connect with websocket
 import cors from "cors";
+import "dotenv/config";
 import express from "express";
 import * as fs from "fs";
 import JsonSocket from "json-socket";
@@ -71,4 +72,5 @@ app.post("/list", (req, res) => {
 	else res.json(fs.readdirSync(p));
 });
 
-app.listen(3000, "localhost");
+// Limited to localhost, so requests from other devices can't read your fs with these endpoints
+app.listen(parseInt(process.env.PORT || "3000"), process.env.ADDRESS || "localhost");

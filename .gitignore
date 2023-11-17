@@ -90,4 +90,4 @@ typings/
 .dynamodb/
 
 # Webpack output
-app/bundle.js
+app/bundle.js*
