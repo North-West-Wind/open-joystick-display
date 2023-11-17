@@ -8,7 +8,6 @@
 	},
 	"boundsLock":false,
 	"map":0,
-	"theme":0,
 	"chroma":false,
 	"chromaColor":"#FF00FF",
 	"alwaysOnTop":false,
@@ -16,7 +15,7 @@
 	"themeStyle":0,
 	"zoom":100,
 	"poll":10,
-	"driver":"chromium",
+	"driver":"network",
 	"driverPort":"",
 	"driverDevice":"",
 	"driverUri":"127.0.0.1"

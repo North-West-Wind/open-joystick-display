@@ -1,33 +1,40 @@
-const FS = require('fs');
-const OJD = window.OJD;
+import $ from "jquery";
+import { ojd } from "../..";
+import Config from "../config.class";
+import Joystick from "../joystick.class";
+import RootController from "./root.controller";
 
 /*
 	TesterController
 	Handles the tester sidebar view and renders the currently connected joystick.
 */
-class TesterController {
+export default class TesterController {
+	rootId = '#ojd-tester';
+	objectIds = {
+		information: '#ojd-tester-information',
+		connected: '#ojd-tester-connected',
+		buttons: '#ojd-tester-buttons',
+		dimensional: '#ojd-tester-dimensional-axes',
+		linear: '#ojd-tester-linear-axes'
+	};
+	templateIds = {
+		buttons: '#ojd-tester-buttons-template',
+		dimensional: '#ojd-tester-dimensional-axis-template',
+		linear: '#ojd-tester-linear-axis-template'
+	};
+	rootController: RootController;
+	config: Config;
+	joystick: Joystick;
+	joystickConnected: boolean;
+	intervalCheckJoystick?: NodeJS.Timeout;
 
-	constructor(rootController) {
-		this.rootId = '#ojd-tester';
-		this.objectIds = {
-			information:'#ojd-tester-information',
-			connected:'#ojd-tester-connected',
-			buttons:'#ojd-tester-buttons',
-			dimensional:'#ojd-tester-dimensional-axes',
-			linear:'#ojd-tester-linear-axes'
-		};
-		this.templateIds = {
-			buttons:'#ojd-tester-buttons-template',
-			dimensional:'#ojd-tester-dimensional-axis-template',
-			linear:'#ojd-tester-linear-axis-template'
-		};
+	constructor(rootController: RootController) {
 
 		this.rootController = rootController;
 		this.config = rootController.config;
 		this.joystick = rootController.joystick;
-		
+
 		this.joystickConnected = false;
-		this.intervalCheckJoystick = false;
 	}
 
 	/*
@@ -89,7 +96,7 @@ class TesterController {
 		}
 
 		let html = '';
-		const joystick = this.joystick.getJoystick();
+		const joystick = this.joystick.getJoystick()!;
 
 		for (const i in joystick.buttons) {
 			html += template.replace(/\$\{index\}/g, i);
@@ -114,10 +121,10 @@ class TesterController {
 		}
 
 		let html = '';
-		const joystick = this.joystick.getJoystick();
-		const directionalCount = joystick.axes.length/2;
-		for (let i=0;i<directionalCount;i++) {
-			html += template.replace(/\$\{index\}/g, i);
+		const joystick = this.joystick.getJoystick()!;
+		const directionalCount = joystick.axes.length / 2;
+		for (let i = 0; i < directionalCount; i++) {
+			html += template.replace(/\$\{index\}/g, i.toString());
 		}
 
 		$(wrapper).html(html);
@@ -139,7 +146,7 @@ class TesterController {
 		}
 
 		let html = '';
-		const joystick = this.joystick.getJoystick();
+		const joystick = this.joystick.getJoystick()!;
 
 		for (const i in joystick.axes) {
 			html += template.replace(/\$\{index\}/g, i);
@@ -155,7 +162,7 @@ class TesterController {
 	 */
 	renderCSSOverrides() {
 
-		let css="";
+		let css = "";
 
 		if (!this.joystickConnected) {
 			css += `#ojd-tester-wrapper{flex: 0 0 95px !important;}`;
@@ -169,7 +176,7 @@ class TesterController {
 	 * render()
 	 * @return NULL
 	 * General renderer
-	 */	
+	 */
 	render() {
 		this.checkController();
 		this.renderButtons();
@@ -184,19 +191,17 @@ class TesterController {
 	 * renderInitial()
 	 * @return NULL
 	 * Initial render called by rootController
-	 */	
-	renderInitial() {
+	 */
+	async renderInitial() {
 
 		const files = [
-			FS.openSync(OJD.appendCwdPath('app/views/components/tester.view.html'), 'r')
+			await ojd.fetchFile("./components/tester.view.html")
 		];
 
 		$(this.rootId).html("");
-		
-		for (const file of files) {
-			const html = FS.readFileSync(file, 'UTF-8');
-			$(this.rootId).append(html);
-			FS.closeSync(file);
+
+		for (const html of files) {
+			$(this.rootId).append(html!);
 		}
 
 		this.render();
@@ -204,6 +209,3 @@ class TesterController {
 	}
 
 }
-
-
-module.exports.TesterController = TesterController;

@@ -1,22 +1,27 @@
-const electron = require('electron');
-const Store = require('electron-store');
-const Clone = require('clone');
-const OJD = window.OJD;
-/*
+import clone from "clone";
+import store from "store";
+import { ojd } from "..";
+import { DataConfig, DataConfigBounds } from "./data.d";
+
+import configJson from "../data/config.json";
+import profileJson from "../data/profile.json";
+import mappingsJson from "../data/mappings.json";
+import mappingsV2Json from "../data/mappings-v2.json";
+import mappingsV3Json from "../data/mappings-v3.json";
+import mappingsV4Json from "../data/mappings-v4.json";
+
+/**
 	Class Config
 	System wide config handler for objects.
 */
-class Config {
-
-	/*
+export default class Config {
+	config: Partial<DataConfig & { themeUserDirectory: string }>;
+	currentMapping: object;
+	/**
 	 * constructor(cwd)
 	 * Config class constructor.
 	 */
 	constructor() {
-
-		// Electron Store
-		this.store = new Store();
-
 		// Class Variables
 		this.config = {};
 		this.currentMapping = {};
@@ -35,39 +40,39 @@ class Config {
 
 		// If config version 3, migrate.
 		this.migrateConfigThree();
-
-
 	}
 
-	/*
-	 * init()
-	 * @param bool reset - Overloaded method for reseting regardless of current state.
-	 * @return bool
+	/**
 	 * Makes a new configuration if this is the first time it's being used.
+	 * @param reset Overloaded method for reseting regardless of current state.
+	 * @return success
 	 */
-	init(reset=false) {
+	init(reset = false) {
 
-		if (typeof this.store.get('config') !== 'undefined') {
+		if (typeof store.get('config') !== "undefined") {
 			if (!reset) {
-				this.config = this.store.get('config');
+				this.config = store.get('config');
 				return false;
 			}
 		}
 
-		const config = require(OJD.appendCwdPath('app/js/data/config.json'));
-		const profile = require(OJD.appendCwdPath('app/js/data/profile.json'));
-		const mappings = require(OJD.appendCwdPath('app/js/data/mappings.json'));
+		const config = clone(configJson);
+		const profile = clone(profileJson);
+		const mappings = clone(mappingsJson);
 
+		// Electron doesn't exist here
+		/*
 		// Center on Screen
 		const screenSize = electron.screen.getPrimaryDisplay().size;
 		config.bounds.x = parseInt((screenSize.width - config.bounds.width)/2, 10);
 		config.bounds.y = parseInt((screenSize.height - config.bounds.height)/2, 10);
+		*/
 
-		this.store.set('mappings', mappings);
-		this.store.set('profiles', [profile]);
-		this.store.set('config', config);
+		store.set('mappings', mappings);
+		store.set('profiles', [profile]);
+		store.set('config', config);
 
-		this.config = this.store.get('config');
+		this.config = store.get('config');
 
 		return true;
 	}
@@ -77,23 +82,24 @@ class Config {
 		if (this.config.version !== 3) {
 			return false;
 		}
+		console.log("migrate 3");
 
-		const newMappings = require(OJD.appendCwdPath('app/js/data/mappings-v4.json'));
-		const mappings = this.store.get('mappings');
+		const newMappings = clone(mappingsV4Json);
+		const mappings = store.get('mappings');
 		for (const map of newMappings) {
 			mappings.push(map);
 		}
 		for (const map of mappings) {
 			map.triggerFixed = [];
 		}
-		this.store.set('mappings', mappings);
+		store.set('mappings', mappings);
 
 		// Set Config to Version 4
 		this.config.version = 4;
-		this.store.set('config', this.config);
+		store.set('config', this.config);
 
 		// Reload
-		this.config = this.store.get('config');
+		this.config = store.get('config');
 
 	}
 
@@ -102,23 +108,24 @@ class Config {
 		if (this.config.version !== 2) {
 			return false;
 		}
+		console.log("migrate 2");
 
-		const newMappings = require(OJD.appendCwdPath('app/js/data/mappings-v3.json'));
-		const mappings = this.store.get('mappings');
+		const newMappings = clone(mappingsV3Json);
+		const mappings = store.get('mappings');
 		for (const map of newMappings) {
 			mappings.push(map);
 		}
 		for (const map of mappings) {
 			map.triggerFixed = [];
 		}
-		this.store.set('mappings', mappings);
+		store.set('mappings', mappings);
 
 		// Set Config to Version 2
 		this.config.version = 3;
-		this.store.set('config', this.config);
+		store.set('config', this.config);
 
 		// Reload
-		this.config = this.store.get('config');
+		this.config = store.get('config');
 
 	}
 
@@ -132,21 +139,22 @@ class Config {
 		if (this.config.version !== 1) {
 			return false;
 		}
+		console.log("migrate 1");
 
 		// Push new mappings for this release.
-		const newMappings = require(OJD.appendCwdPath('app/js/data/mappings-v2.json'));
-		const mappings = this.store.get('mappings');
+		const newMappings = clone(mappingsV2Json);
+		const mappings = store.get('mappings');
 		for (const map of newMappings) {
 			mappings.push(map);
 		}
-		this.store.set('mappings', mappings);
+		store.set('mappings', mappings);
 
 		// Set Config to Version 2
 		this.config.version = 2;
-		this.store.set('config', this.config);
+		store.set('config', this.config);
 
 		// Reload
-		this.config = this.store.get('config');
+		this.config = store.get('config');
 
 	}
 
@@ -160,10 +168,11 @@ class Config {
 		if (this.config.version !== 0) {
 			return false;
 		}
+		console.log("migrate 0");
 
 		// Migrate to new profile system, will be removed in future releases.
-		const profile = require(OJD.appendCwdPath('app/js/data/profile.json'));
-		const mappings = Clone(this.config.mappings);
+		const profile = clone(profileJson);
+		const mappings = clone(this.config.mappings);
 
 		profile.theme 			= this.config.theme;
 		profile.map 			= this.config.map;
@@ -184,25 +193,24 @@ class Config {
 		this.config.profile = 0;
 
 		this.config.version = 1;
-		this.store.set('mappings', mappings);
-		this.store.set('profiles', [profile]);
-		this.store.set('config', this.config);
+		store.set('mappings', mappings);
+		store.set('profiles', [profile]);
+		store.set('config', this.config);
 
 		// Reload
-		this.config = this.store.get('config');
+		this.config = store.get('config');
 
 		return true;
 
 	}
 
-	/*
-	 * setBounds(bounds)
-	 * @param object bounds
-	 * @return object
+	/**
 	 * Sets the current bounds of the window in non-broadcast mode. {x:, y:, height:, width:}.
+	 * @param bounds bounds
+	 * @return object
 	 */
-	setBounds(bounds) {
-		this.config.bounds = Clone(bounds);
+	setBounds(bounds: DataConfigBounds) {
+		this.config.bounds = clone(bounds);
 		this.save();
 		return bounds;
 	}
@@ -262,8 +270,8 @@ class Config {
 	 * @return integer
 	 * Sets the profile currently being used in OJD
 	 */
-	setProfile(id) {
-		this.config.profile = parseInt(id, 10);
+	setProfile(id: string | number) {
+		this.config.profile = typeof id === "string" ? parseInt(id, 10) : id;
 		this.save();
 		return this.config.profile;
 	}
@@ -283,7 +291,7 @@ class Config {
 	 * @return string
 	 * Sets the custom theme directory.
 	 */
-	setUserThemeDirectory(directory) {
+	setUserThemeDirectory(directory: string) {
 		this.config.themeUserDirectory = directory;
 		this.save();
 		return this.config.themeUserDirectory;
@@ -304,7 +312,7 @@ class Config {
 	 * Saves config object
 	 */
 	save() {
-		this.store.set('config', this.config);
+		store.set('config', this.config);
 	}
 
 	/*
@@ -316,7 +324,7 @@ class Config {
 		return this.init(true);
 	}
 
-
+	debugEnabled() {
+		return false;
+	}
 }
-
-module.exports.Config = Config;

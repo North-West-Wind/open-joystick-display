@@ -1,25 +1,29 @@
-const FS = require('fs');
-const OJD = window.OJD;
+import $ from "jquery";
+import { ojd } from "../..";
+import RootController from "./root.controller";
 
-class ToolbarController {
+export default class ToolbarController {
+	rootId = '#ojd-toolbar';
+	aboutId = '#ojd-about-model';
+	objectIds = {
+		btnReload:'#ojd-toolbar-reload',
+		btnDevTools:'#ojd-toolbar-dev',
+		btnResetConfig:'#ojd-toolbar-reset',
+		btnAbout:'#ojd-toolbar-about',
+		btnDownload:'#ojd-toolbar-download',
+		btnCloseModal:'.ojd-modal-close'
+	};
+	rootController: RootController;
+	aboutDialog: boolean;
 
-	constructor(rootController) {
-		this.rootId = '#ojd-toolbar';
-		this.aboutId = '#ojd-about-model';
-		this.objectIds = {
-			btnReload:'#ojd-toolbar-reload',
-			btnDevTools:'#ojd-toolbar-dev',
-			btnResetConfig:'#ojd-toolbar-reset',
-			btnAbout:'#ojd-toolbar-about',
-			btnDownload:'#ojd-toolbar-download',
-			btnCloseModal:'.ojd-modal-close'
-		};
+	constructor(rootController: RootController) {
 		this.rootController = rootController;
 		this.aboutDialog = false;
-		this.localVersion = false;
-		this.remoteVersion = false;
+		//this.localVersion = false;
+		//this.remoteVersion = false;
 	}
 
+	/* We're not checking version because I don't care enough
 	checkVersion() {
 		$.get(OJD.appendCwdPath('app/version'), function( data ) {
 		  this.localVersion = data;
@@ -32,30 +36,17 @@ class ToolbarController {
 			}.bind(this));
 		}.bind(this));
 	}
+	*/
 
 	bindEvents() {
 		$(`${this.rootId} ${this.objectIds.btnReload}`).bind('click', this.onReload.bind(this));
-		$(`${this.rootId} ${this.objectIds.btnDevTools}`).bind('click', this.onDevTools.bind(this));
 		$(`${this.rootId} ${this.objectIds.btnResetConfig}`).bind('click', this.onResetConfig.bind(this));
 		$(`${this.rootId} ${this.objectIds.btnAbout}`).bind('click', this.onAbout.bind(this));
 		$(`${this.aboutId} ${this.objectIds.btnCloseModal}`).bind('click', this.onAbout.bind(this));
-		this.onDevTools(null, true);
 	}
 
 	onReload() {
 		location.reload();
-	}
-
-	onDevTools(e, ignore=false) {
-
-		if (!ignore) {
-			this.rootController.electron.window.toggleDevTools({mode: 'detach'});
-		}
-
-		setTimeout((function() {
-			const devToolsOpened = this.rootController.electron.window.isDevToolsOpened();
-		}).bind(this), 250);
-
 	}
 
 	onResetConfig() {
@@ -74,41 +65,32 @@ class ToolbarController {
 		}
 	}
 
-	renderInitialAbout() {
+	async renderInitialAbout() {
 
 		const files = [
-			FS.openSync(OJD.appendCwdPath('app/views/components/about.view.html'), 'r')
+			await ojd.fetchFile("./components/about.view.html")
 		];
 
 		$(this.aboutId).html("");
-		for (const file of files) {
-			const html = FS.readFileSync(file, 'UTF-8');
-			$(this.aboutId).append(html);
-			FS.closeSync(file);
+		for (const html of files) {
+			$(this.aboutId).append(html!);
 		}
 
 	}
 
-	renderInitial() {
+	async renderInitial() {
 
 		const files = [
-			FS.openSync(OJD.appendCwdPath('app/views/components/toolbar.view.html'), 'r')
+			await ojd.fetchFile("./components/toolbar.view.html")
 		];
 
 		$(this.rootId).html("");
-		for (const file of files) {
-			const html = FS.readFileSync(file, 'UTF-8');
-			$(this.rootId).append(html);
-			FS.closeSync(file);
+		for (const html of files) {
+			$(this.rootId).append(html!);
 		}
 
 		this.renderInitialAbout();
 		this.bindEvents();
-		this.checkVersion();
-
+		//this.checkVersion();
 	}
-
 }
-
-
-module.exports.ToolbarController = ToolbarController;

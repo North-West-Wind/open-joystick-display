@@ -1,25 +1,32 @@
-const Store = require('electron-store');
-const Clone = require('clone');
-const OJD = window.OJD;
+import store from "store";
+import Config from "./config.class";
+import { DataProfile } from "./data";
+import Mappings from "./mappings.class";
+import clone from "clone";
+
+import profileJson from "../data/profile.json";
 
 /*
 	Class Profiles
 	Handles broadcast profiles for the OJD user.
 */
-class Profiles {
+export default class Profiles {
+	config: Config;
+	mappings: Mappings;
+	profiles: DataProfile[];
+	profile!: DataProfile;
 
-	constructor(config, mappings) {
-		this.store = new Store();
+	constructor(config: Config, mappings: Mappings) {
 		this.config = config;
 		this.mappings = mappings;
-		this.profiles = this.store.get('profiles');
-		this.setCurrentProfile(this.getCurrentProfileId());
+		this.profiles = store.get('profiles');
+		this.setCurrentProfile(this.getCurrentProfileId()!);
 	}
 
 	/* 
 		///////////////////////////
-	 		Getters
-	 	///////////////////////////
+				Getters
+			///////////////////////////
 	*/
 
 	/*
@@ -147,25 +154,25 @@ class Profiles {
 	getCurrentProfileDriver() {
 		let driver = this.profile.driver;
 		if (typeof driver === 'undefined' || !driver) {
-			this.setProfileDriver('chromium');
-			driver = 'chromium';
+			this.setProfileDriver('network');
+			driver = 'network';
 		}
 		return driver;
 	}
 
-    /*
-     * getCurrentProfilePlayer()
-     * @return string
-     * Sets the current player for the OS driver
-     */
-    getCurrentProfilePlayer() {
-        let player = this.profile.player;
-        if (typeof player === 'undefined' || !player) {
-            this.setProfilePlayer('0');
-            player = '0';
-        }
-        return player;
-    }
+	/*
+	 * getCurrentProfilePlayer()
+	 * @return string
+	 * Sets the current player for the OS driver
+	 */
+	getCurrentProfilePlayer() {
+		let player = this.profile.player;
+		if (typeof player === 'undefined' || !player) {
+			this.setProfilePlayer('0');
+			player = 0;
+		}
+		return player;
+	}
 
 	/*
 	 * getCurrentProfileDriverPort()
@@ -200,8 +207,8 @@ class Profiles {
 	 * @return object
 	 * Returns a profile by id.
 	 */
-	getProfile(id) {
-		id = parseInt(id, 10);
+	getProfile(id: number | string) {
+		if (typeof id === "string") id = parseInt(id, 10);
 		return this.profiles[id];
 	}
 
@@ -216,8 +223,8 @@ class Profiles {
 
 	/* 
 		///////////////////////////
-	 		Setters
-	 	///////////////////////////
+				Setters
+			///////////////////////////
 	*/
 
 	/*
@@ -226,8 +233,8 @@ class Profiles {
 	 * @return object
 	 * Sets the selected profile and returns the profile object.
 	 */
-	setCurrentProfile(id) {
-		id = parseInt(id, 10);
+	setCurrentProfile(id: number | string) {
+		if (typeof id === "string") id = parseInt(id, 10);
 		id = this.config.setProfile(id);
 		this.profile = this.profiles[id];
 		this.config.setProfile(id);
@@ -240,7 +247,7 @@ class Profiles {
 	 * @return NULL
 	 * Sets the selected profile name.
 	 */
-	setProfileName(name) {
+	setProfileName(name: string) {
 		this.profile.name = name;
 		this.saveCurrent();
 	}
@@ -251,8 +258,8 @@ class Profiles {
 	 * @return NULL
 	 * Sets the selected profile map id.
 	 */
-	setProfileMap(id) {
-		id = parseInt(id, 10);
+	setProfileMap(id: number | string) {
+		if (typeof id === "string") id = parseInt(id, 10);
 		this.profile.map = id;
 		this.saveCurrent();
 	}
@@ -263,7 +270,7 @@ class Profiles {
 	 * @return NULL
 	 * Sets the selected profile theme id.
 	 */
-	setProfileTheme(id) {
+	setProfileTheme(id: string) {
 		this.profile.theme = id;
 		this.saveCurrent();
 	}
@@ -274,7 +281,7 @@ class Profiles {
 	 * @return NULL
 	 * Sets the selected profile driver URI.
 	 */
-	setProfileDriverUri(uri) {
+	setProfileDriverUri(uri: string) {
 		this.profile.driverUri = uri;
 		this.saveCurrent();
 	}
@@ -285,7 +292,7 @@ class Profiles {
 	 * @return NULL
 	 * Sets the selected profile theme style id.
 	 */
-	setProfileThemeStyle(id) {
+	setProfileThemeStyle(id: number) {
 		this.profile.themeStyle = id;
 		this.saveCurrent();
 	}
@@ -329,7 +336,7 @@ class Profiles {
 	 * @return NULL
 	 * Sets the selected profile chroma color.
 	 */
-	setProfileChromaColor(color) {
+	setProfileChromaColor(color: string) {
 		this.profile.chromaColor = color;
 		this.saveCurrent();
 	}
@@ -340,57 +347,35 @@ class Profiles {
 	 * @return NULL
 	 * Sets the profile driver
 	 */
-	setProfileDriver(driver) {
-
-		if (driver === 'chromium') {
-			this.profile.driver = 'chromium';
-		} else if (driver === 'hid') {
-			this.profile.driver = 'hid';
-		} else if (driver === 'network') {
+	setProfileDriver(driver: string) {
+		if (driver === 'network') {
 			this.profile.driver = 'network';
-		} else {
-			this.profile.driver = 'retrospy';
-		}
-
-		if (this.profile.driver  === 'chromium') {
-			this.profile.driverPort = '';
-			this.profile.driverDevice = '';
-			this.profile.driverUri = '';
-		} else if (this.profile.driver  === 'hid') {
-			this.profile.driverPort = '';
-			this.profile.driverDevice = '';
-			this.profile.driverUri = '';
-		} else if (this.profile.driver  === 'network') {
 			this.profile.driverPort = '';
 			this.profile.driverDevice = '';
 			this.profile.driverUri = '127.0.0.1';
-		} else {
-			this.profile.driverPort = '';
-			this.profile.driverDevice = 'nes';
-			this.profile.driverUri = '';
 		}
 
 		this.saveCurrent();
 	}
 
-    /*
-     * setProfilePlayer(port)
-     * @param string player
-     * @return NULL
-     * Sets the profile player port for chromium driver
-     */
-    setProfilePlayer(player) {
-        player = parseInt(player, 10);
-        this.profile.player = player;
-        this.saveCurrent();       
-    }
+	/*
+	 * setProfilePlayer(port)
+	 * @param string player
+	 * @return NULL
+	 * Sets the profile player port for chromium driver
+	 */
+	setProfilePlayer(player: number | string) {
+		if (typeof player === "string") player = parseInt(player, 10);
+		this.profile.player = player;
+		this.saveCurrent();
+	}
 	/*
 	 * setProfileDriverPort(port)
 	 * @param string port
 	 * @return NULL
 	 * Sets the profile driver port
 	 */
-	setProfileDriverPort(port) {
+	setProfileDriverPort(port: string) {
 		this.profile.driverPort = port;
 		this.saveCurrent();
 	}
@@ -400,11 +385,11 @@ class Profiles {
 	 * @param string device
 	 * @return NULL
 	 * Sets the profile driver device
-	 */
+	 *
 	setProfileDriverDevice(device) {
 		this.profile.driverDevice = device;
 		this.saveCurrent();
-	}
+	}*/
 
 	/*
 	 * setProfilePoll(value)
@@ -412,8 +397,8 @@ class Profiles {
 	 * @return integer
 	 * Sets the selected profile poll rate (ms) value. Returns corrected value if need be.
 	 */
-	setProfilePoll(value) {
-		value = parseInt(value, 10);
+	setProfilePoll(value: number | string) {
+		if (typeof value === "string") value = parseInt(value, 10);
 		if (value < 1) {
 			value = 1;
 		} else if (value > 100) {
@@ -430,8 +415,8 @@ class Profiles {
 	 * @return float
 	 * Sets the selected profile zoom. Returns correct value if need be.
 	 */
-	setProfileZoom(zoom) {
-		zoom = parseInt(zoom);
+	setProfileZoom(zoom: number | string) {
+		if (typeof zoom === "string") zoom = parseInt(zoom);
 		if (zoom < 25) {
 			zoom = 25;
 		} else if (zoom > 300) {
@@ -442,23 +427,10 @@ class Profiles {
 		return zoom;
 	}
 
-
-	/*
-	 * setBounds(zoom)
-	 * @param object bounds
-	 * @return object
-	 * Sets the selected profile bounds. Returns correct value if need be.
-	 */
-	setProfileBounds(bounds) {
-		this.profile.bounds = bounds;
-		this.saveCurrent();
-		return bounds;
-	}
-
 	/* 
 		///////////////////////////
-	 		Operators
-	 	///////////////////////////
+				Operators
+			///////////////////////////
 	*/
 
 	/*
@@ -468,7 +440,7 @@ class Profiles {
 	 */
 	create() {
 		const id = this.profiles.length; // Will always be one ahead. Thanks zero index;
-		const profile = require(OJD.appendCwdPath('app/js/data/profile.json'));
+		const profile = clone(profileJson);
 		this.profiles.push(profile);
 		this.setCurrentProfile(id);
 		this.save();
@@ -481,9 +453,9 @@ class Profiles {
 	 * @return integer
 	 * Creates a new profile based on a previous profile.
 	 */
-	clone(id) {
+	clone(id: number) {
 		const newId = this.profiles.length;
-		const profile = Clone(this.getProfile(id));
+		const profile = clone(this.getProfile(id));
 		profile.name = profile.name + ' (Cloned)';
 		this.profiles.push(profile);
 		this.setCurrentProfile(newId);
@@ -497,7 +469,7 @@ class Profiles {
 	 * @return integer
 	 * Removes a profile. If all are removed, a new one will be created in its place.
 	 */
-	remove(id) {
+	remove(id: number) {
 		this.profiles.splice(id, 1);
 		if (this.profiles.length === 0) {
 			this.create();
@@ -514,7 +486,7 @@ class Profiles {
 	 * Saves the current profile to the storage.
 	 */
 	saveCurrent() {
-		const id = this.getCurrentProfileId();
+		const id = this.getCurrentProfileId()!;
 		this.profiles[id] = this.profile;
 		this.save();
 	}
@@ -525,9 +497,7 @@ class Profiles {
 	 * Saves all profiles
 	 */
 	save() {
-		this.store.set('profiles', this.profiles);
+		store.set('profiles', this.profiles);
 	}
 
 }
-
-module.exports.Profiles = Profiles;

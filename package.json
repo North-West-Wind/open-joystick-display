@@ -3,10 +3,12 @@
   "version": "2.9.0",
   "description": "A powerful and easy to use streamer-ready overlay for your joystick or gamepad. Completely free and open source.",
   "author": "KernelZechs, Open Joystick Display <void@kernelzechs.com>",
-  "main": "app/js/electron.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "gulp build && gulp rebuild-electron && electron-builder",
-    "start": "electron ."
+    "start": "electron .",
+    "build:dev": "tsc -w --preserveWatchOutput",
+    "start:dev": "nodemon dist/index.js & webpack -w --config webpack.dev.js"
   },
   "build": {
     "appId": "open-joystick-display-transparent",
@@ -50,27 +52,42 @@
   },
   "dependencies": {
     "clone": "^2.1.2",
-    "electron-store": "^4.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
     "jquery": "^3.4.1",
     "json-socket": "^0.3.0",
-    "lodash": "^4.17.14",
-    "original-fs": "^1.0.0",
+    "msgpack-lite": "^0.1.26",
     "promise": "^8.0.3",
     "sanitize-html": "^1.20.1",
-    "serialport": "^7.1.5",
+    "serialport": "^12.0.0",
+    "store": "^2.0.12",
+    "url": "^0.11.3",
+    "ws": "^8.14.2",
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
-    "electron": "4.0.3",
-    "electron-builder": "^20.38.5",
-    "electron-rebuild": "^1.8.4",
+    "@types/clone": "^2.1.4",
+    "@types/cors": "^2.8.16",
+    "@types/express": "^4.17.21",
+    "@types/jquery": "^3.5.27",
+    "@types/json-socket": "^0.1.20",
+    "@types/msgpack-lite": "^0.1.11",
+    "@types/node": "^20.9.0",
+    "@types/sanitize-html": "^2.9.4",
+    "@types/store": "^2.0.5",
+    "@types/ws": "^8.5.9",
     "gulp": "^4.0.2",
     "gulp-clean-css": "^4.2.0",
     "gulp-connect": "^5.7.0",
     "gulp-less": "^4.0.1",
     "gulp-minify": "^3.1.0",
     "less": "^3.9.0",
-    "node-watch": "^0.6.2",
-    "stream-combiner2": "^1.1.1"
+    "nodemon": "^3.0.1",
+    "path-browserify": "^1.0.1",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.2.2",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^5.10.0"
   }
 }

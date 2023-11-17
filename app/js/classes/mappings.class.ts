@@ -1,14 +1,17 @@
-const Store = require('electron-store');
-const Clone = require('clone');
-const OJD = window.OJD;
+import clone from "clone";
+import store from "store";
+import Config from "./config.class";
+import { DataMapping } from "./data";
 
-class Mappings {
+import mappingJson from "../data/mapping.json";
 
-	constructor(config) {
-		this.store = new Store();
+export default class Mappings {
+	config: Config;
+	mappings: DataMapping[];
+
+	constructor(config: Config) {
 		this.config = config;
-		this.mappings = this.store.get('mappings');
-		window.ojdMappings = this.mappings;
+		this.mappings = store.get('mappings');
 	}
 
 	/* 
@@ -21,7 +24,7 @@ class Mappings {
 		return this.mappings;
 	}
 
-	getMapping(id) {
+	getMapping(id: number) {
 		return this.mappings[id];
 	}
 
@@ -38,7 +41,7 @@ class Mappings {
 	 * @return integer
 	 * Updates a mapping by id.
 	 */
-	update(id, mapping) {
+	update(id: number, mapping: DataMapping) {
 		this.mappings[id] = mapping;
 		this.save();
 
@@ -51,7 +54,7 @@ class Mappings {
 	 */
 	create() {
 		const id = this.mappings.length; // Will always be one ahead. Thanks zero index;
-		const mapping = require(OJD.appendCwdPath('app/js/data/mapping.json'));
+		const mapping = clone(mappingJson);
 		this.mappings.push(mapping);
 		this.save();
 		return id;
@@ -63,9 +66,9 @@ class Mappings {
 	 * @return integer
 	 * Creates a new mapping based on a previous mapping.
 	 */
-	clone(id) {
+	clone(id: number) {
 		const newId = this.mappings.length;
-		const mapping = Clone(this.getMapping(id));
+		const mapping = clone(this.getMapping(id));
 		mapping.name = mapping.name + ' (Cloned)';
 		this.mappings.push(mapping);
 		this.save();
@@ -78,7 +81,7 @@ class Mappings {
 	 * @return integer
 	 * Removes a mapping. If all are removed, a new one will be created in its place.
 	 */
-	remove(id) {
+	remove(id: number) {
 		this.mappings.splice(id, 1);
 		if (this.mappings.length === 0) {
 			this.create();
@@ -93,7 +96,7 @@ class Mappings {
 	 * Saves all mappings
 	 */
 	save() {
-		this.store.set('mappings', this.mappings);
+		store.set('mappings', this.mappings);
 	}
 
 	// Move to profile?
@@ -112,8 +115,4 @@ class Mappings {
 		$(`*[ojd-arcade-directional]`).css('left',``);
 
 	}
-
 }
-module.exports.Mappings = Mappings;
-
-
